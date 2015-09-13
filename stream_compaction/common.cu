@@ -14,6 +14,37 @@ void checkCUDAErrorFn(const char *msg, const char *file, int line) {
     exit(EXIT_FAILURE);
 }
 
+void cpyHostToDevice(const int *hst, int *dev, size_t array_size) {
+	cudaMemcpy(	/*destination*/ dev,
+				/*source*/ hst,
+				/*size in bytes to copy*/ array_size,
+				/*cudaMemcpy type*/ cudaMemcpyHostToDevice);
+
+	checkCUDAError("Error copying memory from host to device");	
+}
+
+/**
+*/
+void cpyDeviceToHost(int *hst,const int *dev, size_t array_size) {
+	cudaMemcpy(	/*destination*/ hst,
+				/*source*/ dev,
+				/*size in bytes to copy*/ array_size,
+				/*cudaMemcpy type*/ cudaMemcpyDeviceToHost);
+
+	checkCUDAError("Error copying memory from device to host");
+}
+
+/**
+*/
+void cpyDeviceToDevice(const int *src, int *dest, size_t array_size) {
+	cudaMemcpy(	/*destination*/ dest,
+				/*source*/ src,
+				/*size in bytes to copy*/ array_size,
+				/*cudaMemcpy type*/ cudaMemcpyDeviceToDevice);
+
+	checkCUDAError("Error copying memory from device to device");
+}
+
 
 namespace StreamCompaction {
 namespace Common {
@@ -23,7 +54,11 @@ namespace Common {
  * which map to 0 will be removed, and elements which map to 1 will be kept.
  */
 __global__ void kernMapToBoolean(int n, int *bools, const int *idata) {
-    // TODO
+    int index = (blockIdx.x*blockDim.x) + threadIdx.x;
+	
+	if(index < n) {
+		bools[index] = (idata[index] != 0);	
+	}
 }
 
 /**
@@ -32,7 +67,11 @@ __global__ void kernMapToBoolean(int n, int *bools, const int *idata) {
  */
 __global__ void kernScatter(int n, int *odata,
         const int *idata, const int *bools, const int *indices) {
-    // TODO
+    int index = (blockIdx.x*blockDim.x) + threadIdx.x;
+
+	if(index < n && bools[index]) {
+		odata[indices[index]] = idata[index];
+	}
 }
 
 }

@@ -8,13 +8,23 @@ namespace CPU {
  * CPU scan (prefix sum).
  */
 void scan(int n, int *odata, const int *idata) {
-    
+
+	cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+    cudaEventRecord(start);
+
 	odata[0] = 0;
 	
 	for(int i = 1; i < n; ++i) {
 		odata[i] = idata[i-1] + odata[i-1];
 	}
 
+	cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+	float elapsedTime; 
+    cudaEventElapsedTime(&elapsedTime , start, stop);
+	printf("n is %i time is %f ms on the CPU\n",n, elapsedTime);
 }
 
 /**
@@ -54,7 +64,7 @@ int compactWithScan(int n, int *odata, const int *idata) {
 	}
 
 	scan(n, scanResult, intermediate);
-
+	
 	for(int i = 0; i < n; ++i) {
 		if(intermediate[i] == 1) {
 			odata[scanResult[i]] = idata[i];
@@ -65,7 +75,7 @@ int compactWithScan(int n, int *odata, const int *idata) {
 	if(intermediate[n-1] == 1) {
 		++compactN;
 	}
-
+	
     return compactN;
 }
 

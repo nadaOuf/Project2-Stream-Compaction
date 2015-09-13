@@ -16,7 +16,7 @@
 #include "testing_helpers.hpp"
 
 int main(int argc, char* argv[]) {
-    const int SIZE = 1 << 8;
+    const int SIZE = 1 << 16;
     const int NPOT = SIZE - 3;
     int a[SIZE], b[SIZE], c[SIZE];
 
@@ -28,17 +28,17 @@ int main(int argc, char* argv[]) {
     printf("****************\n");
 
     genArray(SIZE - 1, a, 50);  // Leave a 0 at the end to test that edge case
-    printArray(SIZE, a, true);
+    //printArray(SIZE, a, true);
 
     zeroArray(SIZE, b);
     printDesc("cpu scan, power-of-two");
     StreamCompaction::CPU::scan(SIZE, b, a);
-    printArray(SIZE, b, true);
+    //printArray(SIZE, b, true);
 
     zeroArray(SIZE, c);
     printDesc("cpu scan, non-power-of-two");
     StreamCompaction::CPU::scan(NPOT, c, a);
-    printArray(NPOT, b, true);
+    //printArray(NPOT, b, true);
     printCmpResult(NPOT, b, c);
 
     zeroArray(SIZE, c);
@@ -93,20 +93,20 @@ int main(int argc, char* argv[]) {
     printDesc("cpu compact without scan, power-of-two");
     count = StreamCompaction::CPU::compactWithoutScan(SIZE, b, a);
     expectedCount = count;
-    printArray(count, b, true);
+    //printArray(count, b, true);
     printCmpLenResult(count, expectedCount, b, b);
 
     zeroArray(SIZE, c);
     printDesc("cpu compact without scan, non-power-of-two");
     count = StreamCompaction::CPU::compactWithoutScan(NPOT, c, a);
     expectedNPOT = count;
-    printArray(count, c, true);
+    //printArray(count, c, true);
     printCmpLenResult(count, expectedNPOT, b, c);
 
     zeroArray(SIZE, c);
     printDesc("cpu compact with scan");
     count = StreamCompaction::CPU::compactWithScan(SIZE, c, a);
-    printArray(count, c, true);
+    //printArray(count, c, true);
     printCmpLenResult(count, expectedCount, b, c);
 
     zeroArray(SIZE, c);
