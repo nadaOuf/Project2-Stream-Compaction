@@ -71,6 +71,7 @@ void scan(int n, int *hst_odata, const int *hst_idata) {
 		offset *= 2;
 	}
 
+	//Down sweep
 	for(d = 1; d < n; d *= 2) {
 		offset >>= 1;
 		kernDownSweep<<<blocksPerGrid, threadsPerBlock>>>(n, d, offset, dev_idata);
