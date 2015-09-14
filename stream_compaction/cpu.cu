@@ -9,22 +9,13 @@ namespace CPU {
  */
 void scan(int n, int *odata, const int *idata) {
 
-	cudaEvent_t start, stop;
-    cudaEventCreate(&start);
-    cudaEventCreate(&stop);
-    cudaEventRecord(start);
-
 	odata[0] = 0;
 	
 	for(int i = 1; i < n; ++i) {
 		odata[i] = idata[i-1] + odata[i-1];
 	}
 
-	cudaEventRecord(stop);
-    cudaEventSynchronize(stop);
-	float elapsedTime; 
-    cudaEventElapsedTime(&elapsedTime , start, stop);
-	printf("n is %i time is %f ms on the CPU\n",n, elapsedTime);
+	//printf("n is %i time is %f ms on the CPU\n",n, elapsedTime);
 }
 
 /**
