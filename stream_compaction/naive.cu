@@ -17,6 +17,8 @@ __global__ void kernNaive(int n, int step, int *odata, int *idata) {
 	if(index < n) {
 		if(index >= step) {
 			odata[index] = idata[index - step] + idata[index];
+		} else {
+			odata[index] = idata[index];
 		}
 	}
 }
@@ -49,9 +51,12 @@ void scan(int n, int *hst_odata, const int *hst_idata) {
     cudaEventCreate(&stop);
     cudaEventRecord(start);
 
-	for(int d = 0; d < passes; ++d) {
-		kernNaive<<<blocksPerGrid, threadsPerBlock>>>(n, power(2, d), dev_odata, dev_idata);
-		//cpyDeviceToDevice(dev_odata, dev_idata, n*sizeof(int));
+	for(int d = 1; d <= passes; ++d) {
+		if(d%2) {
+			kernNaive<<<blocksPerGrid, threadsPerBlock>>>(n, power(2, d - 1), dev_odata, dev_idata);
+		} else {
+			kernNaive<<<blocksPerGrid, threadsPerBlock>>>(n, power(2, d - 1), dev_idata, dev_odata);
+		}
 	}
 
 	cudaEventRecord(stop);
@@ -59,8 +64,8 @@ void scan(int n, int *hst_odata, const int *hst_idata) {
 	float elapsedTime; 
     cudaEventElapsedTime(&elapsedTime , start, stop);
 	printf("time is %f ms on the GPU\n", elapsedTime);
-
-	cpyDeviceToHost(hst_odata+1, dev_odata, (n-1)*sizeof(int));
+	
+	cpyDeviceToHost(hst_odata+1, dev_idata, (n-1)*sizeof(int));
 	hst_odata[0] = 0;
 }
 
